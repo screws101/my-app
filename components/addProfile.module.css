@@ -1,0 +1,90 @@
+.container {
+  max-width: 300px;
+  margin: 2rem auto;
+  padding: 1.25rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.container form {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.container label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.container input[type="text"],
+.container input[type="email"],
+.container input[type="file"],
+.container textarea {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  color: #555;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.container input:focus,
+.container textarea:focus {
+  border-color: #0077ff;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 119, 255, 0.4);
+}
+
+.container textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.container button[type="submit"] {
+  background-color: #0077ff;
+  color: white;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.container button[type="submit"]:hover {
+  background-color: #005fcc;
+}
+
+.container button[type="submit"]:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.container .error {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.container .success {
+  color: #28a745;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+

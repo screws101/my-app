@@ -1,0 +1,29 @@
+.profile-card {
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  padding: 1rem;
+  width: 10rem;
+  transition: transform 0.2s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-4px);
+}
+
+.flex-container {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.profile-card_img img {
+  display: block;
+  margin: 0 auto;
+}
+

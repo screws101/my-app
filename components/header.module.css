@@ -1,0 +1,20 @@
+.app-header {
+  background-color: cornflowerblue;
+  width: 100%;
+  padding: 1rem 2rem;
+  position: relative;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-list {
+  list-style-type: none;
+  display: flex;
+  gap: 2em;
+}
+.nav-list > li > a {
+  color: white;
+}
+

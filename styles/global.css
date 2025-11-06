@@ -1,0 +1,38 @@
+.App {
+  background-color: var(--background-color);
+  transition: background-color 0.25s ease-in-out;
+}
+
+.page-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-color);
+  text-align: center;
+  padding-top: 5rem;
+}
+
+#root {
+  width: 100%;
+  margin: 0;
+  background-color: var(--background-color);
+}
+
+.section {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#header-title {
+  text-align: center;
+  padding: 3rem 1rem 2rem 1rem;
+  margin-top: 1rem;
+}
+
+#header-title h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
