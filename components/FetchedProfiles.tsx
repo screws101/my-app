@@ -38,21 +38,23 @@ const FetchedProfiles = ({
       onLoadingChange?.(true);
 
       try {
-        const url = `https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=${LIMIT}`;
+        const params = new URLSearchParams();
+        if (search) {
+          params.append('name', search);
+        }
+        if (title) {
+          params.append('major', title);
+        }
+        
+        const url = `/api${params.toString() ? '?' + params.toString() : ''}`;
 
         const response = await fetch(url, { signal: controller.signal });
-        const text = await response.text();
+        const data = await response.json();
 
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (err) {
-          setApiProfiles([]);
-          return;
-        }
-
-        if (data && Array.isArray(data.profiles)) {
-          setApiProfiles(data.profiles);
+        if (data && Array.isArray(data.data)) {
+          setApiProfiles(data.data);
+        } else if (data && Array.isArray(data)) {
+          setApiProfiles(data);
         } else {
           setApiProfiles([]);
         }
@@ -71,31 +73,19 @@ const FetchedProfiles = ({
     fetchApiProfiles();
 
     return () => controller.abort();
-  }, [onLoadingChange, onError]);
+  }, [onLoadingChange, onError, title, search]);
 
   const allProfiles = useMemo(() => {
-    const profileMap = new Map();
-    
-    apiProfiles.forEach(profile => {
-      profileMap.set(profile.id, profile);
-    });
-    
-    contextProfiles.forEach(profile => {
-      if (!profileMap.has(profile.id) || profile.image_url.startsWith('blob:')) {
-        profileMap.set(profile.id, profile);
-      }
-    });
-    
-    return Array.from(profileMap.values());
-  }, [apiProfiles, contextProfiles]);
+    return apiProfiles;
+  }, [apiProfiles]);
 
   const filteredProfiles = useMemo(() => {
     return allProfiles.filter((profile: any) => {
-      const matchesTitle = !title || profile.title === title;
+      const matchesMajor = !title || profile.major === title;
       const matchesSearch = !search || 
         profile.name.toLowerCase().includes(search.toLowerCase()) ||
-        profile.email.toLowerCase().includes(search.toLowerCase());
-      return matchesTitle && matchesSearch;
+        profile.major.toLowerCase().includes(search.toLowerCase());
+      return matchesMajor && matchesSearch;
     });
   }, [allProfiles, title, search]);
 
@@ -112,9 +102,9 @@ const FetchedProfiles = ({
         >
           <Card
             name={profile.name}
-            title={profile.title}
-            email={profile.email}
-            img={profile.image_url}
+            major={profile.major}
+            year={profile.year}
+            gpa={profile.gpa}
           />
         </div>
       ))}

@@ -21,7 +21,7 @@ const Filters = memo(({
   return (
     <div className={styles["filter-container"]}>
       <div className={styles["select-filter"]}>
-        <label htmlFor="select">Select a title:</label>
+        <label htmlFor="select">Select a major:</label>
         <select id="select" value={title} onChange={onChange}>
           <option value="">All</option>
           {Array.isArray(titles) && titles.length > 0 ? (
@@ -29,7 +29,7 @@ const Filters = memo(({
               <option key={ti} value={ti}>{ti}</option>
             ))
           ) : (
-            <option disabled>No titles available</option>
+            <option disabled>No majors available</option>
           )}
         </select>
       </div>

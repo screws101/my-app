@@ -3,22 +3,14 @@
 import { memo } from "react";
 import styles from "./card.module.css";
 
-const Card = memo(({ name, title, email, img }: { name: string; title: string; email: string; img: string }) => {
+const Card = memo(({ name, major, year, gpa }: { name: string; major: string; year: number; gpa: number }) => {
   return (
     <div className={styles["profile-card"]}>
-      <div className={styles['profile-card_img']}>
-        <img
-          src={img}
-          alt={name}
-          style={{ width: "100px", height: "100px", borderRadius: "8px" }}
-        />
-      </div>
       <div className={styles["profile-card_content"]}>
         <h2>{name}</h2>
-        <p>{title}</p>
-        <p>
-          <a href={`mailto:${email}`} onClick={(e) => e.stopPropagation()}>{email}</a>
-        </p>
+        <p><strong>Major:</strong> {major}</p>
+        <p><strong>Year:</strong> {year}</p>
+        <p><strong>GPA:</strong> {gpa.toFixed(1)}</p>
       </div>
     </div>
   );

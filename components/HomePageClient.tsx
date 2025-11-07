@@ -5,33 +5,32 @@ import Filters from "./Filters";
 import FetchedProfiles from "./FetchedProfiles";
 
 export default function HomePageClient() {
-  const [title, setTitle] = useState("");
+  const [major, setMajor] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [titles, setTitles] = useState<string[]>([]);
+  const [majors, setMajors] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchTitles = async () => {
+    const fetchMajors = async () => {
       try {
-        const response = await fetch(
-          `https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=1000`
-        );
+        const response = await fetch('/api');
         const data = await response.json();
-        if (data?.profiles) {
-          const uniqueTitles = Array.from(
-            new Set(data.profiles.map((p: any) => p.title).filter(Boolean))
+        const profiles = data.data || data || [];
+        if (Array.isArray(profiles)) {
+          const uniqueMajors = Array.from(
+            new Set(profiles.map((p: any) => p.major).filter(Boolean))
           ) as string[];
-          setTitles(uniqueTitles);
+          setMajors(uniqueMajors);
         }
       } catch (err) {
-        console.error("Failed to fetch titles", err);
+        console.error("Failed to fetch majors", err);
       }
     };
-    fetchTitles();
+    fetchMajors();
   }, []);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTitle(e.target.value);
+  const handleMajorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMajor(e.target.value);
     setPage(1);
   };
 
@@ -41,7 +40,7 @@ export default function HomePageClient() {
   };
 
   const handleClear = () => {
-    setTitle("");
+    setMajor("");
     setSearch("");
     setPage(1);
   };
@@ -54,15 +53,15 @@ export default function HomePageClient() {
           <p style={{ color: '#666', marginBottom: '1rem' }}>Click on a profile to view details</p>
         </div>
         <Filters
-          titles={titles}
-          onChange={handleTitleChange}
+          titles={majors}
+          onChange={handleMajorChange}
           searchName={handleSearchChange}
           clear={handleClear}
-          title={title}
+          title={major}
           search={search}
         />
         <FetchedProfiles
-          title={title}
+          title={major}
           search={search}
           page={page}
           setPage={setPage}
