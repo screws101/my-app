@@ -8,6 +8,7 @@ export async function GET(request){
     const year = searchParams.get("year");
     const name = searchParams.get("name");
     const major = searchParams.get("major");
+    const gpa = searchParams.get("gpa");
     
     let filteredProfiles = [...profiles];
     
