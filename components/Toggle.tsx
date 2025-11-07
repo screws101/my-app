@@ -19,3 +19,4 @@ export const Toggle = ({ handleChange, isChecked }: { handleChange: () => void; 
 
 export default Toggle;
 
+
