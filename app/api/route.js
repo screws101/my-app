@@ -26,6 +26,11 @@ export async function GET(request){
             (profile) => profile.major.toLowerCase() === major.toLowerCase()
         );
     }
+    if(gpa) {
+        filteredProfiles = filteredProfiles.filter(
+            (profile) => profile.gpa.toString() === gpa
+        );
+    }
 
     return Response.json({data:filteredProfiles}, {status:200});
 }
