@@ -1,7 +1,4 @@
-let profiles = [
-{ id: 1, name: "Ava Lee", major: "CS", year: 2, gpa: 3.6 },
-{ id: 2, name: "Ben Park", major: "CGT", year: 3, gpa: 3.2 },
-];
+const {profiles} = require('../route.js')
 
 export async function PUT(request, {params}){
     const newProfile = await request.json();
@@ -27,6 +24,6 @@ export async function PUT(request, {params}){
         };
         return Response.json(profiles[index], {status:200});
     }catch(error){
-        return Response.json({error: "Invalid data format"}, {status: 400});
+        return Response.json({error: "Invalid data format:"}, {status: 400});
     }
 }

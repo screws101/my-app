@@ -1,4 +1,4 @@
-let profiles = [
+export let profiles = [
 { id: 1, name: "Ava Lee", major: "CS", year: 2, gpa: 3.6 },
 { id: 2, name: "Ben Park", major: "CGT", year: 3, gpa: 3.2 },
 ];
