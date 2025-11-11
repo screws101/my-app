@@ -1,4 +1,4 @@
-const {profiles} = require('../route.js')
+import { profiles } from '../route.js';
 
 export async function PUT(request, {params}){
     const newProfile = await request.json();
@@ -15,7 +15,7 @@ export async function PUT(request, {params}){
         }
         const index = profiles.findIndex(profile => profile.id === parseInt(id));
         if(index === -1){
-            return Response.json({error: "Valid GPA is required"}, {status:404});
+            return Response.json({error: "Profile not found", profiles}, {status:404});
         }
         profiles[index] = {
             ...profiles[index],
