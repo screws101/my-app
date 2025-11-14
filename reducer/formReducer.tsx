@@ -46,6 +46,12 @@ export const formReducer = (state: any, action: any) => {
         success: "Something is wrong",
       };
     
+    case "SET_ERROR":
+      return {
+        ...state,
+        errors: action.payload || "An error occurred",
+      };
+    
     case "FINISH_SUBMIT":
       return {
         ...state,

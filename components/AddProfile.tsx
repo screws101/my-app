@@ -3,7 +3,6 @@
 import { useReducer, useRef, useEffect, useLayoutEffect } from "react";
 import styles from './addProfile.module.css';
 import { useRouter } from "next/navigation";
-import { useProfile } from "../context/ProfileContext";
 import { initialState, formReducer } from "../reducer/formReducer";
 
 const stripTags = (s: string) => String(s ?? "").replace(/<\/?[^>]+>/g, "");
@@ -34,8 +33,6 @@ const AddProfile = () => {
     }
   }, []);
 
-  const { addProfile } = useProfile();
-
   const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (event.target.name === "img") {
       const file = (event.target as HTMLInputElement).files?.[0];
@@ -47,26 +44,52 @@ const AddProfile = () => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     dispatch({ type: "START_SUBMITTING" });
+    
     try {
-      const cleanedValues = {
-        name: stripTags(trimCollapse(name)),
-        title: stripTags(trimCollapse(title)),
-        email: stripTags(trimCollapse(email)),
-        bio: stripTags(bio).trim(),
-        img: img,
-      };
-      addProfile(cleanedValues);
+      // Clean the values
+      const cleanedName = stripTags(trimCollapse(name));
+      const cleanedTitle = stripTags(trimCollapse(title));
+      const cleanedEmail = stripTags(trimCollapse(email));
+      const cleanedBio = stripTags(bio).trim();
+      
+      // Validate
+      if (!cleanedName || !cleanedTitle || !cleanedEmail || !cleanedBio || !img) {
+        dispatch({ type: "SET_ERROR", payload: "All fields are required" });
+        dispatch({ type: "FINISH_SUBMIT" });
+        return;
+      }
+      
+      // Create FormData for multipart/form-data submission
+      const formData = new FormData();
+      formData.append('name', cleanedName);
+      formData.append('title', cleanedTitle);
+      formData.append('email', cleanedEmail);
+      formData.append('bio', cleanedBio);
+      formData.append('img', img);
+      
+      // Submit to API route
+      const response = await fetch('/api/profiles', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create profile');
+      }
+      
       dispatch({ type: "SUBMIT_SUCCESS" });
       setTimeout(() => {
         dispatch({ type: "CLEAR_SUCCESS" });
       }, 1000);
       event.currentTarget.reset();
       router.push("/");
-    } catch (error) {
-      dispatch({ type: "HAS_ERROR" });
+    } catch (error: any) {
+      dispatch({ type: "SET_ERROR", payload: error.message || "Failed to create profile" });
     } finally {
       dispatch({ type: "FINISH_SUBMIT" });
     }

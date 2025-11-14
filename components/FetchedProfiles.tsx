@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from 'react';
 import Card from './Card';
 import cardStyles from './card.module.css';
 import { useRouter } from 'next/navigation';
-import { useProfile } from '../context/ProfileContext';
 
 const FetchedProfiles = ({ 
   title, 
@@ -25,9 +24,6 @@ const FetchedProfiles = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { profiles: contextProfiles, fetchProfiles } = useProfile();
-
-  const LIMIT = 1000;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,15 +34,7 @@ const FetchedProfiles = ({
       onLoadingChange?.(true);
 
       try {
-        const params = new URLSearchParams();
-        if (search) {
-          params.append('name', search);
-        }
-        if (title) {
-          params.append('major', title);
-        }
-        
-        const url = `/api${params.toString() ? '?' + params.toString() : ''}`;
+        const url = `/api/profiles`;
 
         const response = await fetch(url, { signal: controller.signal });
         const data = await response.json();
@@ -73,21 +61,18 @@ const FetchedProfiles = ({
     fetchApiProfiles();
 
     return () => controller.abort();
-  }, [onLoadingChange, onError, title, search]);
-
-  const allProfiles = useMemo(() => {
-    return apiProfiles;
-  }, [apiProfiles]);
+  }, [onLoadingChange, onError]);
 
   const filteredProfiles = useMemo(() => {
-    return allProfiles.filter((profile: any) => {
-      const matchesMajor = !title || profile.major === title;
+    return apiProfiles.filter((profile: any) => {
+      const matchesTitle = !title || profile.title?.toLowerCase().includes(title.toLowerCase());
       const matchesSearch = !search || 
-        profile.name.toLowerCase().includes(search.toLowerCase()) ||
-        profile.major.toLowerCase().includes(search.toLowerCase());
-      return matchesMajor && matchesSearch;
+        profile.name?.toLowerCase().includes(search.toLowerCase()) ||
+        profile.title?.toLowerCase().includes(search.toLowerCase()) ||
+        profile.email?.toLowerCase().includes(search.toLowerCase());
+      return matchesTitle && matchesSearch;
     });
-  }, [allProfiles, title, search]);
+  }, [apiProfiles, title, search]);
 
   return (
     <div className={cardStyles["flex-container"]}>
@@ -102,9 +87,10 @@ const FetchedProfiles = ({
         >
           <Card
             name={profile.name}
-            major={profile.major}
-            year={profile.year}
-            gpa={profile.gpa}
+            title={profile.title}
+            email={profile.email}
+            bio={profile.bio}
+            image_url={profile.image_url}
           />
         </div>
       ))}

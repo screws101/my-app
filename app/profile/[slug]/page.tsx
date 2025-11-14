@@ -13,11 +13,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 async function getProfile(id: string) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api`, { cache: 'no-store' });
+    const response = await fetch(`${baseUrl}/api/profiles`, { cache: 'no-store' });
     const data = await response.json();
     const profiles = data.data || data || [];
     
-    const profile = Array.isArray(profiles) ? profiles.find((p: any) => p.id === parseInt(id)) : null;
+    const profile = Array.isArray(profiles) ? profiles.find((p: any) => 
+      p.id === id || p.id === parseInt(id) || p.id?.toString() === id
+    ) : null;
     
     if (profile && profile.id) {
       return profile;
@@ -66,21 +68,30 @@ export default async function ProfileDetailsPage({
 
         <div style={{ padding: "2rem" }}>
           <div style={{ textAlign: "center" }}>
+            {profile.image_url && (
+              <div style={{ marginBottom: "2rem", borderRadius: "8px", overflow: "hidden", display: "inline-block" }}>
+                <img 
+                  src={profile.image_url} 
+                  alt={profile.name} 
+                  style={{ width: "200px", height: "200px", objectFit: "cover" }}
+                />
+              </div>
+            )}
             <h1 style={{ marginBottom: "0.5rem", color: "#333" }}>
               {profile.name}
             </h1>
 
             <div style={{ marginTop: "2rem", textAlign: "left", maxWidth: "400px", margin: "2rem auto" }}>
               <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>Major:</strong> {profile.major}
+                <strong>Title:</strong> {profile.title}
               </div>
 
               <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>Year:</strong> {profile.year}
+                <strong>Email:</strong> {profile.email}
               </div>
 
               <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>GPA:</strong> {profile.gpa.toFixed(2)}
+                <strong>Bio:</strong> {profile.bio}
               </div>
             </div>
           </div>

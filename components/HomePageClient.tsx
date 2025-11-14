@@ -11,22 +11,22 @@ export default function HomePageClient() {
   const [majors, setMajors] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchMajors = async () => {
+    const fetchTitles = async () => {
       try {
-        const response = await fetch('/api');
+        const response = await fetch('/api/profiles');
         const data = await response.json();
         const profiles = data.data || data || [];
         if (Array.isArray(profiles)) {
-          const uniqueMajors = Array.from(
-            new Set(profiles.map((p: any) => p.major).filter(Boolean))
+          const uniqueTitles = Array.from(
+            new Set(profiles.map((p: any) => p.title).filter(Boolean))
           ) as string[];
-          setMajors(uniqueMajors);
+          setMajors(uniqueTitles);
         }
       } catch (err) {
-        console.error("Failed to fetch majors", err);
+        console.error("Failed to fetch titles", err);
       }
     };
-    fetchMajors();
+    fetchTitles();
   }, []);
 
   const handleMajorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
