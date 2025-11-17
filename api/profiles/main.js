@@ -1,7 +1,5 @@
-import {PrismaClient} from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { put } from "@vercel/blob";
-
-const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
 

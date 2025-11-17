@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBaseUrl } from "../../../../lib/getBaseUrl";
+import { prisma } from "../../../../lib/prisma";
 import Wrapper from "../../../../components/Wrapper";
 import AddProfile from "../../../../components/AddProfile";
 
