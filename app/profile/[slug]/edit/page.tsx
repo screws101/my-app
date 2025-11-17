@@ -1,17 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { prisma } from "../../../lib/prisma";
-import Wrapper from "../../../components/Wrapper";
-import ProfileActions from "../../../components/ProfileActions";
+import { getBaseUrl } from "../../../../lib/getBaseUrl";
+import Wrapper from "../../../../components/Wrapper";
+import AddProfile from "../../../../components/AddProfile";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   return {
-    title: `Profile ${slug} - Profile App`,
-    description: `View details for profile ${slug}`,
+    title: `Edit Profile ${slug} - Profile App`,
+    description: `Edit profile ${slug}`,
   };
 }
 
@@ -32,25 +31,22 @@ async function getProfile(id: string) {
       });
       
       if (dbProfile) {
-        console.log(`Found profile ${id} in database`);
+        console.log(`Found profile ${id} in database for edit`);
         return {
           id: dbProfile.id.toString(),
           name: dbProfile.name,
           title: dbProfile.title,
           email: dbProfile.email,
           bio: dbProfile.bio,
-          image_url: dbProfile.image_url,
-          isDatabaseProfile: true // Flag to indicate this is from database
+          image_url: dbProfile.image_url
         };
       }
-      console.log(`Profile ${id} not found in database, trying external API...`);
     } catch (err: any) {
       console.error(`Error fetching profile ${id} from database:`, err.message || err);
-      // Continue to try external API
     }
   }
   
-  // Fallback: fetch from external API and filter
+  // Fallback: fetch from external API and filter (for external profiles)
   try {
     // Fetch external profiles
     const externalResponse = await fetch(
@@ -82,8 +78,7 @@ async function getProfile(id: string) {
         title: profile.title,
         email: profile.email,
         bio: profile.bio,
-        image_url: profile.image_url,
-        isDatabaseProfile: true // Mark database profiles
+        image_url: profile.image_url
       }));
     } catch (dbErr) {
       console.error('Error fetching database profiles:', dbErr);
@@ -91,8 +86,6 @@ async function getProfile(id: string) {
     
     // Combine both sources
     const allProfiles = [...dbProfiles, ...externalProfiles];
-    
-    console.log(`Searching for profile with ID: ${id} in ${allProfiles.length} profiles`);
     
     const profile = allProfiles.find((p: any) => {
       if (!p || !p.id) return false;
@@ -111,15 +104,10 @@ async function getProfile(id: string) {
     });
     
     if (profile && profile.id) {
-      console.log(`Found profile: ${profile.name} (ID: ${profile.id})`);
-      // Preserve the isDatabaseProfile flag if it exists, otherwise default to false
-      return {
-        ...profile,
-        isDatabaseProfile: (profile as any).isDatabaseProfile === true
-      };
+      console.log(`Found profile for edit: ${profile.name} (ID: ${profile.id})`);
+      return profile;
     }
     
-    console.log(`Profile with ID ${id} not found. Available IDs (first 5):`, allProfiles.slice(0, 5).map((p: any) => p.id));
     return null;
   } catch (err: any) {
     console.error('Error fetching profiles:', err.message || err);
@@ -127,13 +115,70 @@ async function getProfile(id: string) {
   }
 }
 
-export default async function ProfileDetailsPage({
+export default async function EditProfilePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const profile = await getProfile(slug);
+  
+  // Verify the profile ID is valid
+  const id = Number(slug);
+  if (!slug || isNaN(id)) {
+    return (
+      <Wrapper>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#d32f2f' }}>
+          <h2>Invalid profile ID.</h2>
+          <p>The profile ID must be a valid number.</p>
+          <Link href="/" style={{ color: '#0077ff', textDecoration: 'underline' }}>
+            Return to Home
+          </Link>
+        </div>
+      </Wrapper>
+    );
+  }
+  
+  // Fetch profile from API to ensure we have the database ID
+  let profile;
+  try {
+    const baseUrl = await getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/profiles/${id}`, {
+      cache: "no-store"
+    });
+    
+    if (!res.ok) {
+      if (res.status === 404) {
+        return (
+          <Wrapper>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#d32f2f' }}>
+              <h2>Profile not found.</h2>
+              <p>Could not load profile with ID {id}.</p>
+              <Link href="/" style={{ color: '#0077ff', textDecoration: 'underline' }}>
+                Return to Home
+              </Link>
+            </div>
+          </Wrapper>
+        );
+      }
+      throw new Error("Could not load profile.");
+    }
+    
+    const data = await res.json();
+    profile = data.data;
+  } catch (error: any) {
+    console.error('Error fetching profile for edit:', error);
+    return (
+      <Wrapper>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#d32f2f' }}>
+          <h2>Error loading profile.</h2>
+          <p>{error.message || 'Could not load profile.'}</p>
+          <Link href="/" style={{ color: '#0077ff', textDecoration: 'underline' }}>
+            Return to Home
+          </Link>
+        </div>
+      </Wrapper>
+    );
+  }
 
   if (!profile) {
     notFound();
@@ -149,7 +194,7 @@ export default async function ProfileDetailsPage({
         }}
       >
         <Link
-          href="/"
+          href={`/profile/${slug}`}
           style={{
             display: "inline-block",
             padding: "0.5rem 1rem",
@@ -160,50 +205,20 @@ export default async function ProfileDetailsPage({
             marginBottom: "2rem",
           }}
         >
-          ← Back to Profiles
+          ← Back to Profile
         </Link>
-
-        <div style={{ padding: "2rem" }}>
-          <div style={{ textAlign: "center" }}>
-            {profile.image_url && (
-              <div style={{ marginBottom: "2rem", borderRadius: "8px", overflow: "hidden", display: "inline-block" }}>
-                <Image 
-                  src={profile.image_url} 
-                  alt={profile.name} 
-                  width={200}
-                  height={200}
-                  priority
-                  style={{ width: "200px", height: "200px", objectFit: "cover" }}
-                />
-              </div>
-            )}
-            <h1 style={{ marginBottom: "0.5rem", color: "#333" }}>
-              {profile.name}
-            </h1>
-
-            <div style={{ marginTop: "2rem", textAlign: "left", maxWidth: "400px", margin: "2rem auto" }}>
-              <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>Title:</strong> {profile.title}
-              </div>
-
-              <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>Email:</strong> {profile.email}
-              </div>
-
-              <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <strong>Bio:</strong> {profile.bio}
-              </div>
-            </div>
-            
-            {/* Show Edit/Delete buttons for all profiles */}
-            {profile.id && (
-              <ProfileActions profileId={profile.id.toString()} />
-            )}
-          </div>
-        </div>
+        <AddProfile 
+          profileId={profile.id.toString()}
+          initialData={{
+            name: profile.name,
+            title: profile.title,
+            email: profile.email,
+            bio: profile.bio,
+            image_url: profile.image_url
+          }}
+        />
       </div>
     </Wrapper>
   );
 }
-
 

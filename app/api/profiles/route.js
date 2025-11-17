@@ -98,10 +98,8 @@ export async function POST(request) {
       },
     });
     
-    return Response.json(
-      { message: 'Profile created!', data: newProfile },
-      { status: 201 }
-    );
+    // Return the full record (must return the actual DB id)
+    return Response.json(newProfile, { status: 201 });
   } catch (error) {
     console.error('Error creating profile:', error);
     
