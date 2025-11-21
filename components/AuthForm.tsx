@@ -41,13 +41,17 @@ const AuthForm = () => {
     try {
       if (isLogin) {
         const result = await signIn("credentials", {
-          redirect: true,
+          redirect: false,
           callbackUrl,
           email,
           password,
         });
 
-        if (result?.error) setErrors(result.error);
+        if (result?.error) {
+          setErrors(result.error);
+        } else if (result?.ok && result.url) {
+          router.push(result.url);
+        }
       } else {
         const res = await fetch("/api/auth/signup", {
           method: "POST",
@@ -60,12 +64,18 @@ const AuthForm = () => {
         if (json.error) {
           setErrors(json.error);
         } else {
-          await signIn("credentials", {
-            redirect: true,
+          const result = await signIn("credentials", {
+            redirect: false,
             callbackUrl,
             email,
             password,
           });
+
+          if (result?.error) {
+            setErrors(result.error);
+          } else if (result?.ok && result.url) {
+            router.push(result.url);
+          }
         }
       }
     } catch {

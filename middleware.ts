@@ -4,3 +4,4 @@ export const config = {
   matcher: ["/add-profile", "/profile/:path*/edit"],
 };
 
+
