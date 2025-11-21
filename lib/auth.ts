@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
@@ -38,6 +40,8 @@ export const {
         }
       },
     }),
+    GitHub,
+    Google,
   ],
   pages: {
     signIn: "/auth/signin",
