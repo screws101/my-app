@@ -68,30 +68,30 @@ const AddProfile = ({ profileId, initialData }: AddProfileProps = {}) => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     dispatch({ type: "START_SUBMITTING" });
-    dispatch({ type: "SET_ERROR", payload: "" }); // Clear previous errors
+    dispatch({ type: "SET_ERROR", payload: "" });
     
     try {
-      // Clean the values (use current form values, which may be partial in edit mode)
+     
       const cleanedName = name ? stripTags(trimCollapse(name)) : '';
       const cleanedTitle = title ? stripTags(trimCollapse(title)) : '';
       const cleanedEmail = email ? stripTags(trimCollapse(email)) : '';
       const cleanedBio = bio ? stripTags(bio).trim() : '';
       
-      // For new profiles, image is required. For edits, it's optional.
+     
       if (!isEditMode && !img) {
         dispatch({ type: "SET_ERROR", payload: "Image is required for new profiles" });
         dispatch({ type: "FINISH_SUBMIT" });
         return;
       }
       
-      // Create FormData for multipart/form-data submission
-      // Always send all fields (backend will merge with existing data for partial updates)
+     
+     
       const formData = new FormData();
       formData.append('name', cleanedName || '');
       formData.append('title', cleanedTitle || '');
       formData.append('email', cleanedEmail || '');
       formData.append('bio', cleanedBio || '');
-      // Always send image_url in edit mode to ensure it's preserved
+     
       if (isEditMode) {
         formData.append('image_url', initialData?.image_url || '');
       }
@@ -99,7 +99,7 @@ const AddProfile = ({ profileId, initialData }: AddProfileProps = {}) => {
         formData.append('img', img);
       }
       
-      // Submit to API route
+     
       const url = isEditMode ? `/api/profiles/${profileId}` : '/api/profiles';
       const method = isEditMode ? 'PUT' : 'POST';
       
@@ -111,7 +111,7 @@ const AddProfile = ({ profileId, initialData }: AddProfileProps = {}) => {
       const data = await response.json();
       
       if (!response.ok) {
-        // Use the specific error message from API
+       
         const errorMessage = data.error || `Failed to ${isEditMode ? 'update' : 'create'} profile`;
         dispatch({ type: "SET_ERROR", payload: errorMessage });
         dispatch({ type: "FINISH_SUBMIT" });
@@ -124,8 +124,8 @@ const AddProfile = ({ profileId, initialData }: AddProfileProps = {}) => {
       }, 1000);
       
       if (isEditMode) {
-        // Redirect back to profile detail page
-        // Use the returned profile ID (PUT returns { data: result }, POST returns result directly)
+       
+       
         const returnedProfile = data.data || data;
         const finalProfileId = returnedProfile?.id?.toString() || profileId;
         router.push(`/profile/${finalProfileId}`);
@@ -135,7 +135,7 @@ const AddProfile = ({ profileId, initialData }: AddProfileProps = {}) => {
         router.push("/");
       }
     } catch (error: any) {
-      // Network or other errors
+     
       dispatch({ type: "SET_ERROR", payload: error.message || `Failed to ${isEditMode ? 'update' : 'create'} profile` });
       dispatch({ type: "FINISH_SUBMIT" });
     }

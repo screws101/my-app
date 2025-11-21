@@ -9,13 +9,12 @@ const Card = memo(({ name, title, email, bio, image_url }: { name: string; title
     <div className={styles["profile-card"]}>
       <div className={styles["profile-card_content"]}>
         {image_url && (
-          <div style={{ marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
-            <Image 
-              src={image_url} 
-              alt={name} 
-              width={200} 
-              height={200}
-              style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+          <div className={styles.imageWrapper}>
+            <Image
+              src={image_url}
+              alt={name}
+              fill
+              className={styles.profileImg}
             />
           </div>
         )}

@@ -5,6 +5,7 @@ import { ModeProvider } from "../context/ModeContext";
 import { ProfileProvider } from "../context/ProfileContext";
 import HeaderWithToggle from "../components/HeaderWithToggle";
 import ThemeWrapper from "../components/ThemeWrapper";
+import SessionProvider from "../components/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,16 +32,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ModeProvider>
-          <ProfileProvider>
-            <ThemeWrapper>
-              <HeaderWithToggle />
-              <main>
-                {children}
-              </main>
-            </ThemeWrapper>
-          </ProfileProvider>
-        </ModeProvider>
+        <SessionProvider>
+          <ModeProvider>
+            <ProfileProvider>
+              <ThemeWrapper>
+                <HeaderWithToggle />
+                <main>
+                  {children}
+                </main>
+              </ThemeWrapper>
+            </ProfileProvider>
+          </ModeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

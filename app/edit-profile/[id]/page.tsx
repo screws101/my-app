@@ -20,7 +20,7 @@ async function getProfile(id: string) {
     return null;
   }
 
-  // First, try to fetch directly from database using Prisma
+ 
   const isNumericId = !isNaN(parseInt(id)) && isFinite(parseInt(id));
   
   if (isNumericId) {
@@ -47,7 +47,7 @@ async function getProfile(id: string) {
     }
   }
   
-  // Fallback: try API endpoint with proper baseUrl
+ 
   try {
     const baseUrl = await getBaseUrl();
     const response = await fetch(`${baseUrl}/api/profiles/${id}`, { 

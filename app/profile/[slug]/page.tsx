@@ -21,7 +21,7 @@ async function getProfile(id: string) {
     return null;
   }
 
-  // First, try to fetch from database (for numeric IDs)
+ 
   const isNumericId = !isNaN(parseInt(id)) && isFinite(parseInt(id));
   
   if (isNumericId) {
@@ -40,19 +40,19 @@ async function getProfile(id: string) {
           email: dbProfile.email,
           bio: dbProfile.bio,
           image_url: dbProfile.image_url,
-          isDatabaseProfile: true // Flag to indicate this is from database
+          isDatabaseProfile: true
         };
       }
       console.log(`Profile ${id} not found in database, trying external API...`);
     } catch (err: any) {
       console.error(`Error fetching profile ${id} from database:`, err.message || err);
-      // Continue to try external API
+     
     }
   }
   
-  // Fallback: fetch from external API and filter
+ 
   try {
-    // Fetch external profiles
+   
     const externalResponse = await fetch(
       'https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=100',
       { cache: 'no-store' }
@@ -70,7 +70,7 @@ async function getProfile(id: string) {
       }
     }
     
-    // Also fetch database profiles
+   
     let dbProfiles: any[] = [];
     try {
       const dbProfilesData = await prisma.profiles.findMany({
@@ -83,13 +83,13 @@ async function getProfile(id: string) {
         email: profile.email,
         bio: profile.bio,
         image_url: profile.image_url,
-        isDatabaseProfile: true // Mark database profiles
+        isDatabaseProfile: true
       }));
     } catch (dbErr) {
       console.error('Error fetching database profiles:', dbErr);
     }
     
-    // Combine both sources
+   
     const allProfiles = [...dbProfiles, ...externalProfiles];
     
     console.log(`Searching for profile with ID: ${id} in ${allProfiles.length} profiles`);
@@ -99,10 +99,10 @@ async function getProfile(id: string) {
       const pId = p.id?.toString();
       const searchId = id.toString();
       
-      // Try exact match first
+     
       if (pId === searchId) return true;
       
-      // Try numeric comparison
+     
       const pIdNum = parseInt(pId);
       const searchIdNum = parseInt(searchId);
       if (!isNaN(pIdNum) && !isNaN(searchIdNum) && pIdNum === searchIdNum) return true;
@@ -112,7 +112,7 @@ async function getProfile(id: string) {
     
     if (profile && profile.id) {
       console.log(`Found profile: ${profile.name} (ID: ${profile.id})`);
-      // Preserve the isDatabaseProfile flag if it exists, otherwise default to false
+     
       return {
         ...profile,
         isDatabaseProfile: (profile as any).isDatabaseProfile === true
@@ -172,8 +172,7 @@ export default async function ProfileDetailsPage({
                   alt={profile.name} 
                   width={200}
                   height={200}
-                  priority
-                  style={{ width: "200px", height: "200px", objectFit: "cover" }}
+                  style={{ objectFit: "cover" }}
                 />
               </div>
             )}
@@ -195,7 +194,6 @@ export default async function ProfileDetailsPage({
               </div>
             </div>
             
-            {/* Show Edit/Delete buttons for all profiles */}
             {profile.id && (
               <ProfileActions profileId={profile.id.toString()} />
             )}

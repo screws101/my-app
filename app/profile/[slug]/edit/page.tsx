@@ -21,7 +21,7 @@ async function getProfile(id: string) {
     return null;
   }
 
-  // First, try to fetch from database (for numeric IDs)
+ 
   const isNumericId = !isNaN(parseInt(id)) && isFinite(parseInt(id));
   
   if (isNumericId) {
@@ -47,9 +47,9 @@ async function getProfile(id: string) {
     }
   }
   
-  // Fallback: fetch from external API and filter (for external profiles)
+ 
   try {
-    // Fetch external profiles
+   
     const externalResponse = await fetch(
       'https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=100',
       { cache: 'no-store' }
@@ -67,7 +67,7 @@ async function getProfile(id: string) {
       }
     }
     
-    // Also fetch database profiles
+   
     let dbProfiles: any[] = [];
     try {
       const dbProfilesData = await prisma.profiles.findMany({
@@ -85,7 +85,7 @@ async function getProfile(id: string) {
       console.error('Error fetching database profiles:', dbErr);
     }
     
-    // Combine both sources
+   
     const allProfiles = [...dbProfiles, ...externalProfiles];
     
     const profile = allProfiles.find((p: any) => {
@@ -93,10 +93,10 @@ async function getProfile(id: string) {
       const pId = p.id?.toString();
       const searchId = id.toString();
       
-      // Try exact match first
+     
       if (pId === searchId) return true;
       
-      // Try numeric comparison
+     
       const pIdNum = parseInt(pId);
       const searchIdNum = parseInt(searchId);
       if (!isNaN(pIdNum) && !isNaN(searchIdNum) && pIdNum === searchIdNum) return true;
@@ -123,7 +123,7 @@ export default async function EditProfilePage({
 }) {
   const { slug } = await params;
   
-  // Verify the profile ID is valid
+ 
   const id = Number(slug);
   if (!slug || isNaN(id)) {
     return (
@@ -139,7 +139,7 @@ export default async function EditProfilePage({
     );
   }
   
-  // Fetch profile from API to ensure we have the database ID
+ 
   let profile;
   try {
     const baseUrl = await getBaseUrl();

@@ -14,7 +14,7 @@ export default function ProfileActions({ profileId }: ProfileActionsProps) {
   const [error, setError] = useState("");
 
   const handleDelete = async () => {
-    // Show confirmation dialog
+   
     const confirmed = window.confirm(
       "Are you sure you want to delete this profile? This action cannot be undone."
     );
@@ -37,7 +37,7 @@ export default function ProfileActions({ profileId }: ProfileActionsProps) {
         throw new Error(data.error || "Failed to delete profile");
       }
 
-      // Redirect to home page after successful deletion
+     
       router.push("/");
       router.refresh();
     } catch (error: any) {

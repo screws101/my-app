@@ -1,4 +1,6 @@
-import { prisma } from '../../../../lib/prisma';
+import { prisma } from "../../../../lib/prisma";
+
+
 import { put } from '@vercel/blob';
 
 export async function GET(request, { params }) {
@@ -6,111 +8,34 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const profileId = parseInt(id);
     
-    console.log("GET REQUEST FOR ID:", profileId, "(original:", id, ")");
-    
-    if (!isNaN(profileId)) {
-      try {
-        const dbProfile = await prisma.profiles.findUnique({
-          where: { id: profileId }
-        });
-        
-        if (dbProfile) {
-          console.log(`Found profile ${id} in database`);
-          return Response.json({
-            data: {
-              id: dbProfile.id.toString(),
-              name: dbProfile.name,
-              title: dbProfile.title,
-              email: dbProfile.email,
-              bio: dbProfile.bio,
-              image_url: dbProfile.image_url
-            }
-          }, { status: 200 });
-        }
-        console.log(`Profile ${id} not found in database, trying external API...`);
-      } catch (err) {
-        console.error(`Error fetching profile ${id} from database:`, err.message || err);
-      }
+    if (isNaN(profileId)) {
+      return Response.json(
+        { error: 'Invalid profile ID' },
+        { status: 400 }
+      );
     }
     
-    try {
-      const externalResponse = await fetch(
-        'https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=100',
-        { cache: 'no-store' }
-      );
-      
-      let externalProfiles = [];
-      if (externalResponse.ok) {
-        const externalData = await externalResponse.json();
-        if (externalData?.profiles && Array.isArray(externalData.profiles)) {
-          externalProfiles = externalData.profiles;
-        } else if (Array.isArray(externalData)) {
-          externalProfiles = externalData;
-        } else if (externalData?.data && Array.isArray(externalData.data)) {
-          externalProfiles = externalData.data;
-        }
-      }
-      
-      let dbProfiles = [];
-      try {
-        const dbProfilesData = await prisma.profiles.findMany({
-          orderBy: { createdAt: 'desc' }
-        });
-        dbProfiles = dbProfilesData.map(profile => ({
-          id: profile.id.toString(),
-          name: profile.name,
-          title: profile.title,
-          email: profile.email,
-          bio: profile.bio,
-          image_url: profile.image_url
-        }));
-      } catch (dbErr) {
-        console.error('Error fetching database profiles:', dbErr);
-      }
-      
-      const allProfiles = [...dbProfiles, ...externalProfiles];
-      
-      console.log(`Searching for profile with ID: ${id} in ${allProfiles.length} profiles`);
-      
-      const profile = allProfiles.find((p) => {
-        if (!p || !p.id) return false;
-        const pId = p.id?.toString();
-        const searchId = id.toString();
-        
-        if (pId === searchId) return true;
-        
-        const pIdNum = parseInt(pId);
-        const searchIdNum = parseInt(searchId);
-        if (!isNaN(pIdNum) && !isNaN(searchIdNum) && pIdNum === searchIdNum) return true;
-        
-        return false;
-      });
-      
-      if (profile && profile.id) {
-        console.log(`Found profile: ${profile.name} (ID: ${profile.id})`);
-        return Response.json({
-          data: {
-            id: profile.id.toString(),
-            name: profile.name,
-            title: profile.title,
-            email: profile.email,
-            bio: profile.bio,
-            image_url: profile.image_url
-          }
-        }, { status: 200 });
-      }
-      
+    const profile = await prisma.profiles.findUnique({
+      where: { id: profileId }
+    });
+    
+    if (!profile) {
       return Response.json(
         { error: 'Profile not found' },
         { status: 404 }
       );
-    } catch (err) {
-      console.error('Error fetching profiles from external API:', err.message || err);
-      return Response.json(
-        { error: 'Failed to fetch profile' },
-        { status: 500 }
-      );
     }
+    
+    return Response.json({
+      data: {
+        id: profile.id.toString(),
+        name: profile.name,
+        title: profile.title,
+        email: profile.email,
+        bio: profile.bio,
+        image_url: profile.image_url
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching profile:', error);
     return Response.json(
@@ -152,74 +77,32 @@ export async function PUT(request, { params }) {
       };
       
       if (imgFile && imgFile instanceof File && imgFile.size > 0) {
-        const blob = await put(imgFile.name, imgFile, {
-          access: 'public',
-          token: process.env.BLOB_READ_WRITE_TOKEN,
-        });
-        data.image_url = blob.url;
+        const { url } = await put(
+          `profile-${Date.now()}.png`,
+          imgFile,
+          { access: "public" }
+        );
+        data.image_url = url;
       }
     }
     
-    let existing = await prisma.profiles.findUnique({
+    const existing = await prisma.profiles.findUnique({
       where: { id: profileId },
     });
     
-    console.log("FETCH RESULT:", existing ? `Found profile: ${existing.name}` : "Profile not found in database");
-    
-    let externalProfile = null;
     if (!existing) {
-      try {
-        const externalResponse = await fetch(
-          'https://web.ics.purdue.edu/~zong6/profile-app/fetch-data-with-filter.php?title=&name=&page=1&limit=100',
-          { cache: 'no-store' }
-        );
-        
-        let externalProfiles = [];
-        if (externalResponse.ok) {
-          const externalData = await externalResponse.json();
-          if (externalData?.profiles && Array.isArray(externalData.profiles)) {
-            externalProfiles = externalData.profiles;
-          } else if (Array.isArray(externalData)) {
-            externalProfiles = externalData;
-          } else if (externalData?.data && Array.isArray(externalData.data)) {
-            externalProfiles = externalData.data;
-          }
-        }
-        
-        externalProfile = externalProfiles.find((p) => {
-          if (!p || !p.id) return false;
-          const pId = p.id?.toString();
-          const searchId = profileId.toString();
-          if (pId === searchId) return true;
-          const pIdNum = parseInt(pId);
-          const searchIdNum = parseInt(searchId);
-          if (!isNaN(pIdNum) && !isNaN(searchIdNum) && pIdNum === searchIdNum) return true;
-          return false;
-        });
-        
-        if (externalProfile) {
-          console.log(`Found profile ${profileId} in external API: ${externalProfile.name}`);
-        }
-      } catch (err) {
-        console.error('Error fetching from external API:', err);
-      }
+      return Response.json(
+        { error: 'Profile not found' },
+        { status: 404 }
+      );
     }
     
-    const getValue = (formValue, existingValue) => {
-      if (formValue !== null && formValue !== undefined) {
-        const trimmed = formValue.toString().trim();
-        if (trimmed) return trimmed;
-      }
-      return existingValue || '';
-    };
-    
-    const sourceProfile = existing || externalProfile;
     const mergedData = {
-      name: getValue(data.name, sourceProfile?.name),
-      title: getValue(data.title, sourceProfile?.title),
-      email: getValue(data.email, sourceProfile?.email),
-      bio: getValue(data.bio, sourceProfile?.bio),
-      image_url: data.image_url || sourceProfile?.image_url || '',
+      name: data.name?.trim() || existing.name,
+      title: data.title?.trim() || existing.title,
+      email: data.email?.trim() || existing.email,
+      bio: data.bio?.trim() || existing.bio,
+      image_url: data.image_url || existing.image_url || '',
     };
     
     if (!mergedData.name || mergedData.name.trim() === "") {
@@ -266,36 +149,14 @@ export async function PUT(request, { params }) {
       image_url: mergedData.image_url || '',
     };
     
-    let result;
-    if (existing) {
-      result = await prisma.profiles.update({
-        where: { id: profileId },
-        data: profileData,
-      });
-      console.log(`Updated profile ${profileId} in database`);
-    } else {
-      try {
-        result = await prisma.profiles.create({
-          data: {
-            ...profileData,
-          },
-        });
-        console.log(`Created new profile in database (requested ID: ${profileId}, actual ID: ${result.id})`);
-      } catch (createError) {
-        if (createError.code === 'P2002') {
-          result = await prisma.profiles.create({
-            data: profileData,
-          });
-          console.log(`Created new profile with auto-generated ID: ${result.id}`);
-        } else {
-          throw createError;
-        }
-      }
-    }
+    const result = await prisma.profiles.update({
+      where: { id: profileId },
+      data: profileData,
+    });
     
     return Response.json(
-      { message: existing ? 'Profile updated!' : 'Profile created!', data: result },
-      { status: existing ? 200 : 201 }
+      { message: 'Profile updated!', data: result },
+      { status: 200 }
     );
   } catch (error) {
     console.error("UPDATE ERROR:", error);
