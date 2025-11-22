@@ -4,9 +4,12 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import AuthForm from "@/components/AuthForm";
 
 export default function SignInPage() {
+  const params = useSearchParams();
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div>
