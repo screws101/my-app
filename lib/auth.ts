@@ -1,3 +1,4 @@
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
@@ -9,6 +10,7 @@ export const {
   handlers,
   auth,
 } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: "Credentials",
@@ -61,6 +63,8 @@ export const {
       if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
+        session.user.name = token.name as string | undefined;
+        session.user.image = token.picture as string | undefined;
       }
       return session;
     },
@@ -68,6 +72,8 @@ export const {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.name = (user as any).name;
+        token.picture = (user as any).image;
       }
       return token;
     },
