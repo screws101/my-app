@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-
 "use client";
 
 import { Suspense } from "react";
@@ -11,7 +10,6 @@ export default function SignInPage() {
   const params = useSearchParams();
   
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <div>
         <AuthForm />
         <div style={{ textAlign: 'center', marginTop: '2rem', marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
@@ -29,7 +27,6 @@ export default function SignInPage() {
           </button>
         </div>
       </div>
-    </Suspense>
   );
 }
 
