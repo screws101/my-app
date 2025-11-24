@@ -59,6 +59,7 @@ export const {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
       return baseUrl + "/";
     },
     authorized({ auth, request }) {
