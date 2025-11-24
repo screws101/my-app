@@ -47,10 +47,17 @@ const AuthForm = () => {
           password,
         });
 
+        console.log("Sign in result:", result);
+
         if (result?.error) {
-          setErrors(result.error);
-        } else if (result?.ok && result.url) {
-          router.push(result.url);
+          setErrors(result.error || "Invalid email or password");
+          setIsSubmitting(false);
+        } else if (result?.ok) {
+          window.location.href = callbackUrl;
+        } else {
+          console.error("Unexpected result:", result);
+          setErrors("Sign in failed. Please try again.");
+          setIsSubmitting(false);
         }
       } else {
         const res = await fetch("/api/auth/signup", {
@@ -63,6 +70,7 @@ const AuthForm = () => {
 
         if (json.error) {
           setErrors(json.error);
+          setIsSubmitting(false);
         } else {
           const result = await signIn("credentials", {
             redirect: false,
@@ -72,15 +80,20 @@ const AuthForm = () => {
           });
 
           if (result?.error) {
-            setErrors(result.error);
-          } else if (result?.ok && result.url) {
-            router.push(result.url);
+            setErrors(result.error || "Invalid email or password");
+            setIsSubmitting(false);
+          } else if (result?.ok) {
+            window.location.href = callbackUrl;
+          } else {
+            console.error("Unexpected result:", result);
+            setErrors("Sign in failed. Please try again.");
+            setIsSubmitting(false);
           }
         }
       }
-    } catch {
+    } catch (error) {
+      console.error("Sign in error:", error);
       setErrors("Unexpected error. Try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };

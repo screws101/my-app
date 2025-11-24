@@ -11,6 +11,9 @@ export const {
   auth,
 } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     Credentials({
       name: "Credentials",
@@ -55,6 +58,9 @@ export const {
     signIn: "/auth/signin",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return baseUrl + "/";
+    },
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
       const path = request.nextUrl.pathname;
