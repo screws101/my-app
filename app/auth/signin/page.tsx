@@ -8,7 +8,7 @@ import { signIn } from "next-auth/react";
 import AuthForm from "@/components/AuthForm";
 
 export default function SignInPage() {
-  const params = useSearchParams();
+  // const params = useSearchParams();
   
   return (
       <div>
