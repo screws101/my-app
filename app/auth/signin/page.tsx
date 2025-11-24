@@ -1,9 +1,10 @@
-export const dynamic = "force-dynamic";
 "use client";
+export const dynamic = "force-dynamic";
 
-import { Suspense } from "react";
+
+// import { Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import AuthForm from "@/components/AuthForm";
 
 export default function SignInPage() {
